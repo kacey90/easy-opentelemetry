@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>0.1.0</Version>
+        <Title>Easy OpenTelemetry</Title>
+        <Authors>Collins Ezerioha</Authors>
+        <Description>A simplified library for adding OpenTelemetry to .NET applications with minimal configuration</Description>
+        <Copyright>MIT</Copyright>
+        <PackageProjectUrl>https://github.com/kacey90/easy-opentelemetry</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/kacey90/easy-opentelemetry</RepositoryUrl>
+        <PackageTags>opentelemetry;observability;tracing;metrics;logging;dotnet</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Core OpenTelemetry packages -->
+        <PackageReference Include="OpenTelemetry" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+
+        <!-- Instrumentation packages -->
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="1.12.0-beta.1" />
+
+        <!-- Serilog integration -->
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
+        <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+
+        <!-- Microsoft extensions -->
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.5" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>
