@@ -10,25 +10,32 @@ A simplified library for adding OpenTelemetry observability to .NET applications
 - 🔧 **Sensible Defaults**: Works out of the box with common scenarios
 - 🎯 **Selective Instrumentation**: Enable/disable specific instrumentations as needed
 
+## Installation
+Install the NuGet package:
+
+```bash
+dotnet add package EasyOpenTelemetry
+```
+
 ## Quick Start
 
 ### Basic Usage
 
 ```csharp
 // Program.cs
-using OpenTelemetry.Simplified;
+using EasyOpenTelemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add OpenTelemetry with minimal configuration
-builder.Services.AddSimplifiedOpenTelemetry(
+builder.Services.AddEasyOpenTelemetry(
     serviceName: "my-api",
     environment: "production",
     otlpEndpoint: "http://jaeger:4317"
 );
 
 // Add Serilog integration
-builder.Host.UseSimplifiedSerilog(config => 
+builder.Host.UseEasyOpenTelemetryWithSerilog(config => 
 {
     config.ServiceName = "my-api";
     config.Environment = "production";
@@ -44,14 +51,14 @@ app.Run();
 ```csharp
 // Uses environment variables: OTEL_SERVICE_NAME, ASPNETCORE_ENVIRONMENT, OTEL_EXPORTER_OTLP_ENDPOINT
 var otelConfig = OtelConfigurationBuilder.FromEnvironment("my-service");
-builder.Services.AddSimplifiedOpenTelemetry(otelConfig);
-builder.Host.UseSimplifiedSerilog(otelConfig);
+builder.Services.AddEasyOpenTelemetry(otelConfig);
+builder.Host.UseEasyOpenTelemetryWithSerilog(otelConfig);
 ```
 
 ### Advanced Configuration
 
 ```csharp
-builder.Services.AddSimplifiedOpenTelemetry(config =>
+builder.Services.AddEasyOpenTelemetry(config =>
 {
     config.ServiceName = "my-advanced-api";
     config.Environment = "staging";
@@ -123,5 +130,5 @@ builder.Services.AddOpenTelemetry()
 With this:
 ```csharp
 // New simplified setup (1 line)
-builder.Services.AddSimplifiedOpenTelemetry("my-service", "production", "http://jaeger:4317");
+builder.Services.AddEasyOpenTelemetry("my-service", "production", "http://jaeger:4317");
 ```
