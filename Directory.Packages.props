@@ -1,0 +1,32 @@
+<Project>
+
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Core OpenTelemetry packages -->
+        <PackageVersion Include="OpenTelemetry" Version="1.15.3" />
+        <PackageVersion Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.15.3-beta.1" />
+        <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+        <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+
+        <!-- Instrumentation packages -->
+        <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
+        <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
+        <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
+        <PackageVersion Include="OpenTelemetry.Instrumentation.Process" Version="1.15.1-beta.1" />
+
+        <!-- Serilog integration -->
+        <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+        <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
+        <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.0" />
+
+        <!-- Test dependencies -->
+        <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+        <PackageVersion Include="xunit" Version="2.9.3" />
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
+    </ItemGroup>
+
+</Project>

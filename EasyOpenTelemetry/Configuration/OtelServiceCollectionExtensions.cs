@@ -87,14 +87,24 @@ public static class OtelServiceCollectionExtensions
                 metrics.AddProcessInstrumentation();
 
             metrics.SetResourceBuilder(ResourceBuilder
-                    .CreateDefault()
-                    .AddService(configuration.ServiceName)
-                    .AddAttributes(resourceAttributes))
-                .AddOtlpExporter(opts =>
+                .CreateDefault()
+                .AddService(configuration.ServiceName)
+                .AddAttributes(resourceAttributes));
+
+            if (configuration.EnableOtlpMetricsExporter)
+            {
+                metrics.AddOtlpExporter(opts =>
                 {
                     opts.Endpoint = new Uri(configuration.OtlpEndpoint);
                     opts.Protocol = configuration.Protocol;
                 });
+            }
+
+            if (configuration.EnablePrometheusExporter)
+            {
+                metrics.AddPrometheusExporter(opts =>
+                    opts.ScrapeEndpointPath = configuration.PrometheusScrapeEndpointPath);
+            }
         });
     }
 

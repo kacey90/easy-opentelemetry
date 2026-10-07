@@ -1,40 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.1.1</Version>
+        <Version>0.2.0</Version>
         <Title>Easy OpenTelemetry</Title>
         <Authors>Collins Ezerioha</Authors>
         <Description>A simplified library for adding OpenTelemetry to .NET applications with minimal configuration</Description>
         <Copyright>MIT</Copyright>
         <PackageProjectUrl>https://github.com/kacey90/easy-opentelemetry</PackageProjectUrl>
         <RepositoryUrl>https://github.com/kacey90/easy-opentelemetry</RepositoryUrl>
-        <PackageTags>opentelemetry;observability;tracing;metrics;logging;dotnet</PackageTags>
+        <PackageTags>opentelemetry;observability;tracing;metrics;logging;prometheus;dotnet</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Core OpenTelemetry packages -->
-        <PackageReference Include="OpenTelemetry" Version="1.12.0" />
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+        <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" />
 
         <!-- Instrumentation packages -->
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="1.12.0-beta.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Process" />
 
         <!-- Serilog integration -->
-        <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
-        <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
-        <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+        <PackageReference Include="Serilog.Extensions.Hosting" />
+        <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
+        <PackageReference Include="Serilog.Settings.Configuration" />
+    </ItemGroup>
 
-        <!-- Microsoft extensions -->
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.5" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+    <ItemGroup>
+        <!-- Required to compile against IApplicationBuilder for the Prometheus scraping endpoint helper. -->
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
     <ItemGroup>

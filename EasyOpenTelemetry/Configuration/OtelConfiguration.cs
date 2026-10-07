@@ -12,6 +12,9 @@ public class OtelConfiguration
     public bool EnableSerilogIntegration { get; set; } = true;
     public bool EnableTracing { get; set; } = true;
     public bool EnableMetrics { get; set; } = true;
+    public bool EnableOtlpMetricsExporter { get; set; } = true;
+    public bool EnablePrometheusExporter { get; set; } = false;
+    public string PrometheusScrapeEndpointPath { get; set; } = "/metrics";
     public bool EnableAspNetCoreInstrumentation { get; set; } = true;
     public bool EnableHttpClientInstrumentation { get; set; } = true;
     public bool EnableRuntimeInstrumentation { get; set; } = true;
