@@ -24,6 +24,8 @@ easy-opentelemetry/
 │   ├── OtelConfigurationBuilder.cs # Static entry: Create(...) / FromEnvironment(...)
 │   └── Configuration/
 │       ├── OtelConfiguration.cs                  # Options object (all knobs live here)
+│       ├── OtlpLogExporterOptions.cs             # Per-exporter options for AdditionalLogExporters
+│       ├── OtelResourceAttributes.cs             # Shared resource-attribute dictionary (internal)
 │       ├── OtelServiceCollectionExtensions.cs    # AddEasyOpenTelemetry(...) overloads
 │       ├── SerilogHostBuilderExtensions.cs       # UseEasyOpenTelemetryWithSerilog(...)
 │       └── PrometheusApplicationBuilderExtensions.cs # UseEasyOpenTelemetryPrometheus(...)
@@ -38,7 +40,8 @@ This is a **library, not an application**, so app-level architectures (VSA, Clea
 - The public surface is intentionally minimal: `OtelConfigurationBuilder`, `OtelConfiguration`, and the two extension method families. Treat every `public` symbol as an API contract — adding one is a commitment, removing/renaming one is a breaking change.
 - Configuration flows one way: caller builds an `OtelConfiguration` (directly, via `OtelConfigurationBuilder`, or via an `Action<OtelConfiguration>`), and the extension methods consume it. New options should be added as properties on `OtelConfiguration` with sensible defaults, not as new method parameters.
 - Keep instrumentation toggles as `bool Enable*` properties (existing convention) so callers can opt out selectively.
-- Resource attributes are centralized in `GetResourceAttributes` — reuse it rather than duplicating the `deployment.environment` / `service.name` mapping.
+- Resource attributes are centralized in the internal `OtelResourceAttributes.From(...)` — every sink/provider (traces, metrics, primary and additional Serilog sinks) must use it rather than duplicating the `deployment.environment` / `service.name` mapping. `AdditionalResourceAttributes` win on key collisions.
+- Additional log exporters are Serilog sub-loggers built by the internal `AdditionalLogExporter(...)` seam (filters in an outer sub-logger, enrichers in a nested one, because Serilog runs enrichers before filters). They pass `ignoreEnvironment: true` so `OTEL_EXPORTER_OTLP_*` can't redirect them.
 
 ## Conventions
 

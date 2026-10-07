@@ -14,7 +14,7 @@ public static class OtelServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(configuration.ServiceName))
             throw new ArgumentException("ServiceName is required", nameof(configuration));
         
-        var resourceAttributes = GetResourceAttributes(configuration);
+        var resourceAttributes = OtelResourceAttributes.From(configuration);
 
         if (configuration.EnableTracing || configuration.EnableMetrics)
         {
@@ -137,21 +137,5 @@ public static class OtelServiceCollectionExtensions
                     opts.Protocol = configuration.Protocol;
                 });
         });
-    }
-
-    private static Dictionary<string, object> GetResourceAttributes(OtelConfiguration configuration)
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["deployment.environment"] = configuration.Environment,
-            ["service.name"] = configuration.ServiceName
-        };
-
-        foreach (var attr in configuration.AdditionalResourceAttributes)
-        {
-            attributes[attr.Key] = attr.Value;
-        }
-
-        return attributes;
     }
 }

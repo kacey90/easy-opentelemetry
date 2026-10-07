@@ -21,4 +21,13 @@ public class OtelConfiguration
     public bool EnableProcessInstrumentation { get; set; } = true;
     public List<string> AdditionalTracingSources { get; set; } = new();
     public List<string> AdditionalMeterNames { get; set; } = new();
+    public List<OtlpLogExporterOptions> AdditionalLogExporters { get; set; } = new();
+    
+    public OtelConfiguration AddLogExporter(string name, Action<OtlpLogExporterOptions> configure)
+    {
+        var options = new OtlpLogExporterOptions { Name = name };
+        configure(options);
+        AdditionalLogExporters.Add(options);
+        return this;
+    }
 }

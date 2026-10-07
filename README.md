@@ -88,6 +88,10 @@ builder.Services.AddEasyOpenTelemetry(config =>
 | `EnableHttpClientInstrumentation` | `true` | Instrument HTTP client calls |
 | `EnableRuntimeInstrumentation` | `true` | Collect .NET runtime metrics |
 | `EnableProcessInstrumentation` | `true` | Collect process metrics |
+| `AdditionalResourceAttributes` | empty | Extra resource attributes on traces, metrics and every log sink (override `service.name` / `deployment.environment` on collision) |
+| `AdditionalTracingSources` | empty | Extra `ActivitySource` names to trace |
+| `AdditionalMeterNames` | empty | Extra `Meter` names to collect |
+| `AdditionalLogExporters` | empty | Extra, filtered OTLP log destinations. See [Additional Log Exporters](#additional-log-exporters) |
 
 ## Environment Variables
 
@@ -116,6 +120,7 @@ The library automatically reads these environment variables when using `FromEnvi
 - Serilog integration with OTLP sink. (This will only configure the OTEL sink for serilog. You can still setup serilog as you normally would, but this will ensure that the OTLP sink is configured correctly.)
 - Automatic resource attribute mapping
 - Configuration-based log levels
+- Optional extra, filtered OTLP log destinations. See [Additional Log Exporters](#additional-log-exporters)
 
 ## Prometheus Metrics (beta)
 
@@ -158,6 +163,77 @@ Prometheus pull can run side by side (the default), or you can run Prometheus-on
 
 > **Note:** Prometheus requires `EnableMetrics = true` (the default). If metrics are disabled,
 > the exporter is never registered.
+
+## Additional Log Exporters
+
+Besides the primary OTLP sink (which receives every log), you can send a **filtered, reshaped
+copy** of your logs to more OTLP endpoints, such as a product-analytics or vendor backend that
+only wants business events. Each exporter is its own Serilog sub-logger, so whatever it filters,
+adds or strips **never affects the primary sink**. With no exporters configured (the default),
+behaviour is unchanged.
+
+```csharp
+using EasyOpenTelemetry.Configuration;
+using EasyOpenTelemetry.Logging;
+using OpenTelemetry.Exporter;
+
+builder.Host.UseEasyOpenTelemetryWithSerilog(config =>
+{
+    config.ServiceName = "my-api";
+    config.OtlpEndpoint = "http://collector:4317";        // primary sink: everything
+
+    config.AddLogExporter("analytics", exporter =>
+    {
+        exporter.Endpoint = "https://otlp.vendor.example/v1/logs"; // full logs URL
+        exporter.Protocol = OtlpExportProtocol.HttpProtobuf;       // the default
+        exporter.Headers["Authorization"] = $"Bearer {builder.Configuration["Analytics:ApiKey"]}";
+
+        // Only export records that carry ALL of these properties.
+        exporter.RequiredProperties.Add(EventLoggerExtensions.EventNameAttribute); // "event.name"
+
+        exporter.ExcludeProperties.Add("RequestPath");        // strip noise / PII
+        exporter.AddProperties["source"] = "backend";         // added only if absent
+        exporter.IncludeMessageTemplate = false;              // see note below
+    });
+});
+
+// Anywhere you have an ILogger: emits a log record with an "event.name" attribute.
+logger.LogEvent("checkout.completed", [new("cart.total", 42.5)]);
+```
+
+Analytics backends (Produlytics-style) usually want `IncludeMessageTemplate = false`: they treat
+each record as an event and its attributes as event properties, so the message-template attribute
+is just noise.
+
+| `OtlpLogExporterOptions` property | Default | Description |
+|----------|---------|-------------|
+| `Name` | (set by `AddLogExporter`) | Label used in error messages |
+| `Endpoint` | empty | Full `http(s)` logs URL. **Required while `Enabled`**: startup throws `ArgumentException` if it is missing or not absolute |
+| `Protocol` | `HttpProtobuf` | `HttpProtobuf` or `Grpc` |
+| `Headers` | empty | Sent with every export, e.g. `Authorization` |
+| `RequiredProperties` | empty | Only records carrying **all** of these properties are exported |
+| `Filter` | `null` | Optional `Func<LogEvent, bool>`, applied on top of `RequiredProperties` |
+| `MinimumLevel` | `Verbose` | Minimum level for this exporter |
+| `ExcludeProperties` | empty | Properties removed before export |
+| `AddProperties` | empty | Properties added to every exported record if absent |
+| `IncludeMessageTemplate` | `true` | Send the message template as an attribute |
+| `Enabled` | `true` | Turn the exporter off without removing it (e.g. in environments with no endpoint) |
+
+Things to know:
+
+- **Only `UseEasyOpenTelemetryWithSerilog` uses exporters.** `AddEasyOpenTelemetry` ignores
+  `AdditionalLogExporters`, and so does `EnableSerilogIntegration = false`.
+- **Options are read once, at startup.** Changing an exporter's options after the host is built
+  has no effect.
+- **Filters see the original record.** `RequiredProperties`, `Filter` and `MinimumLevel` are
+  checked before `AddProperties` / `ExcludeProperties` run. A property you add can't satisfy
+  `RequiredProperties`, and a property you strip is still visible to `Filter`.
+- **`MinimumLevel` can only narrow.** An exporter never sees records below the logger's own
+  minimum level (e.g. from `Serilog:MinimumLevel` in configuration).
+- **Resource attributes are shared.** Every exporter gets the same `service.name`,
+  `deployment.environment` and `AdditionalResourceAttributes` as the primary sink.
+- **`OTEL_EXPORTER_OTLP_*` environment variables don't apply.** They describe the primary
+  collector, so additional exporters ignore them and only use their own `Endpoint`/`Headers`.
 
 ## Migration from Manual Setup
 
